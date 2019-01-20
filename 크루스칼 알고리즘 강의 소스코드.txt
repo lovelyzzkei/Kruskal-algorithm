@@ -1,0 +1,104 @@
+#include<iostream>
+#include<algorithm>
+#include<vector>
+using namespace std;
+
+// Union-Find 알고리즘 그대로 사용
+int getParent(int parent[], int x);
+void unionParent(int parent[], int a, int b);
+int findParent(int parent[], int a, int b);
+
+// 간선 클래스 선언 (간선 정보를 담기 위하여)
+class Edge {
+public:
+	Edge(int a, int b, int distance);
+	int node[2];	// 서로 연결된 두개의 노드 정보가 담김
+	int distance;	// 거리, 즉 비용 정보가 담김 
+	bool operator < (const Edge& Edge) const;
+};
+
+int main() {
+	cin.tie(NULL);
+	cin.sync_with_stdio(false);
+	cout.sync_with_stdio(false);
+
+	int n = 7;
+	int m = 11;
+
+	vector<Edge> v1;
+	v1.push_back(Edge(1, 7, 12));
+	v1.push_back(Edge(1, 4, 28));
+	v1.push_back(Edge(1, 2, 67));
+	v1.push_back(Edge(1, 5, 17));
+	v1.push_back(Edge(2, 4, 24));
+	v1.push_back(Edge(2, 5, 62));
+	v1.push_back(Edge(3, 5, 20));
+	v1.push_back(Edge(3, 6, 37));
+	v1.push_back(Edge(4, 7, 13));
+	v1.push_back(Edge(5, 6, 45));
+	v1.push_back(Edge(5, 7, 73));
+
+	// 간선의 비용을 기준으로 오름차순 정렬
+	sort(v1.begin(), v1.end());
+
+	// 각 정점이 포함된 그래프가 어디인지 저장. 사이클을 확인하는데 사용
+	int parent[8];
+	for (int i = 1; i <= n; i++) {
+		parent[i] = i;
+	}
+
+	int sum = 0; 
+	for (int i = 0; i < v1.size(); i++) {
+		// 사이클이 발생하지 않는 경우 간선의 비용을 더하고 그래프에 포함
+		if (!findParent(parent, v1[i].node[0], v1[i].node[1])) {
+			sum += v1[i].distance;
+			unionParent(parent, v1[i].node[0], v1[i].node[1]);
+		}
+	}
+	cout << sum << "\n";
+	return 0;
+}
+
+
+Edge::Edge(int a, int b, int distance) {
+	this->node[0] = a;
+	this->node[1] = b;
+	this->distance = distance;
+}
+
+// 거리가 작은게 먼저 출력이 되도록 정렬
+bool Edge::operator<(const Edge& edge) const {
+	return this->distance < edge.distance; 
+}
+
+int getParent(int parent[], int x) {
+	if (parent[x] == x) {
+		return x;
+	}
+	else {
+		return parent[x] = getParent(parent, parent[x]);
+
+	}
+}
+
+void unionParent(int parent[], int a, int b) {
+	a = getParent(parent, a);
+	b = getParent(parent, b);
+	if (a < b) {
+		parent[b] = a;
+	}
+	else {
+		parent[a] = b;
+	}
+}
+
+int findParent(int parent[], int a, int b) {
+	a = getParent(parent, a);
+	b = getParent(parent, b);
+	if (a == b) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
