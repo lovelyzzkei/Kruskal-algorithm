@@ -1,0 +1,86 @@
+#include<iostream>
+#include<algorithm>
+#include<vector>
+using namespace std;
+
+int getParent(int parent[], int x);
+void unionParent(int parent[], int a, int b);
+int findParent(int parent[], int a, int b);
+
+class Edge {
+public:
+	Edge(int a, int b, int distance);
+	int node[2];
+	int distance;
+	bool operator<(const Edge& edge) const;
+};
+
+int main() {
+	cin.tie(NULL);
+	cin.sync_with_stdio(false);
+	cout.sync_with_stdio(false);
+
+	int parent[1010];
+	int n, m, a, b, c, sum = 0;
+	vector<Edge> v;
+	cin >> n >> m;
+	for (int i = 1; i <= n; i++) {
+		parent[i] = i;
+	}
+
+	for (int i = 0; i < m; i++) {
+		cin >> a >> b >> c;
+		v.push_back(Edge(a, b, c));
+	}
+
+	sort(v.begin(), v.end());
+	for (int i = 0; i < v.size(); i++) {
+		if (!findParent(parent, v[i].node[0], v[i].node[1])) {
+			sum += v[i].distance;
+			unionParent(parent, v[i].node[0], v[i].node[1]);
+		}
+	}
+	cout << sum << "\n";
+	return 0;
+}
+
+Edge::Edge(int a, int b, int distance) {
+	this->node[0] = a;
+	this->node[1] = b;
+	this->distance = distance;
+}
+
+bool Edge::operator<(const Edge& edge) const {
+	return this->distance < edge.distance;
+}
+
+int getParent(int parent[], int x) {
+	if (parent[x] == x) {
+		return x;
+	}
+	else {
+		return parent[x] = getParent(parent, parent[x]);
+	}
+}
+
+void unionParent(int parent[], int a, int b) {
+	a = getParent(parent, a);
+	b = getParent(parent, b);
+	if (a < b) {
+		parent[b] = a;
+	}
+	else {
+		parent[a] = b;
+	}
+}
+
+int findParent(int parent[], int a, int b) {
+	a = getParent(parent, a);
+	b = getParent(parent, b);
+	if (a == b) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
