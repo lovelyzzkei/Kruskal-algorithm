@@ -1,0 +1,104 @@
+#include<iostream>
+#include<vector>
+#include<algorithm>
+using namespace std;
+
+// Union-Find 알고리즘 그대로 사용
+int getParent(int parent[], int x);
+void unionParent(int parent[], int a, int b);
+int findParent(int parent[], int a, int b);
+
+// 간선 정보를 담기 위한 클래스 선언
+class Edge {
+public:
+	Edge(int a, int b, int cost);
+	int node[2];
+	int cost;
+	bool operator<(const Edge& edge) const;
+};
+
+// 입력 받기 위한 2차원 배열 선언
+int matrix[1010][1010];
+
+int main() {
+	cin.tie(NULL);
+	cin.sync_with_stdio(false);
+	cout.sync_with_stdio(false);
+
+	int parent[1010];
+	int n, input;
+	long long int sum = 0;
+	vector<Edge> v;
+	cin >> n;
+
+	// 사이클 배열과 행렬 초기화
+	for (int i = 1; i <= n; i++) {
+		parent[i] = i;
+		for (int j = 1; j <= n; j++) {
+			cin >> input;
+			matrix[i][j] = input;
+		}
+	}
+
+	// 행렬에 입력되어 있는 간선 정보를 객체로 옮김
+	for (int i = 1; i <= n; i++) {
+		for (int j = i + 1; j <= n; j++) {
+			v.push_back(Edge(i, j, matrix[i][j]));
+		}
+	}
+
+	// 사이클 확인하며 크루스칼 알고리즘 실행
+	sort(v.begin(), v.end());
+	for (int i = 0; i < v.size(); i++) {
+		if (!findParent(parent, v[i].node[0], v[i].node[1])) {
+			sum += v[i].cost;
+			unionParent(parent, v[i].node[0], v[i].node[1]);
+		}
+	}
+
+	cout << sum << "\n";
+	return 0;
+}
+
+Edge::Edge(int a, int b, int cost) {
+	this->node[0] = a;
+	this->node[1] = b;
+	this->cost = cost;
+}
+
+bool Edge::operator<(const Edge& edge) const {
+	return this->cost < edge.cost;
+}
+
+int getParent(int parent[], int x) {
+	if (parent[x] == x) {
+		return x;
+	}
+	else {
+		return parent[x] = getParent(parent, parent[x]);
+	}
+}
+
+void unionParent(int parent[], int a, int b) {
+	a = getParent(parent, a);
+	b = getParent(parent, b);
+
+	if (a < b) {
+		parent[b] = a;
+	}
+	else {
+		parent[a] = b;
+	}
+}
+
+int findParent(int parent[], int a, int b) {
+	a = getParent(parent, a);
+	b = getParent(parent, b);
+
+	if (a == b) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
